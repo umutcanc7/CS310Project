@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 import 'navigation_bar.dart';
 import 'package:email_validator/email_validator.dart';
+import 'package:flutter/services.dart';
 import 'dart:io' show Platform;
 import 'package:flutter/cupertino.dart';
 
 void main (){
   runApp(MaterialApp(
+    debugShowCheckedModeBanner: false,
     title: "Project phase 2",
-    initialRoute: "/Login",
+    initialRoute: "/Menu",
     routes:{
       "/Login":(context) => LoginScreen(), //1
       "/Register" :(context)=>RegisterScreen(), //2
@@ -35,7 +37,6 @@ class HomeScreen extends StatefulWidget {
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
-
 class _HomeScreenState extends State<HomeScreen> {
  
   @override
@@ -48,8 +49,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
 class ProfilePage extends StatelessWidget{
   const ProfilePage({super.key});
-
-
   @override
   Widget build(BuildContext context){
     
@@ -128,7 +127,6 @@ class ProfileScreen extends StatefulWidget{
   @override
   State<ProfileScreen> createState() => _ProfileScreen(); 
 }
-
 class _ProfileScreen extends State<ProfileScreen>{
   @override
   Widget build(BuildContext context){
@@ -146,7 +144,6 @@ class LoginScreen extends StatefulWidget{
   @override
   State<LoginScreen> createState() => _LoginScreen(); 
 }
-
 class _LoginScreen extends State<LoginScreen>{
 
   final _formKey = GlobalKey<FormState>();
@@ -362,7 +359,6 @@ class RegisterScreen extends StatefulWidget{
   @override
   State<RegisterScreen> createState() =>_RegisterScreen(); 
 }
-
 class _RegisterScreen extends State<RegisterScreen>{
   final _formKey = GlobalKey<FormState>();
   String name = '';
@@ -602,7 +598,6 @@ class FortuneScreen extends StatefulWidget{
   @override
   State<FortuneScreen> createState() =>_FortuneScreen(); 
 }
-
 class _FortuneScreen extends State<FortuneScreen>{
   @override
   Widget build(BuildContext context){
@@ -614,18 +609,152 @@ class _FortuneScreen extends State<FortuneScreen>{
 
 
 //SearchScreen
-class SearchScreen extends StatefulWidget{
+class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});
-
   @override
-  State<SearchScreen> createState() =>_SearchScreen(); 
+  State<SearchScreen> createState() => _SearchScreenState();
 }
+class _SearchScreenState extends State<SearchScreen> {
+  final TextEditingController _searchController = TextEditingController();
+  List<Map<String, dynamic>> results = [];
+  final List<Map<String, dynamic>> drinks = [
+    {"name": "Sprite", "price": 30, "type": "drink", "isFavorite": false, "inCart": false},
+    {"name": "Water", "price": 15, "type": "drink", "isFavorite": false, "inCart": false},
+    {"name": "Tea", "price": 15, "type": "drink", "isFavorite": false, "inCart": false},
+    {"name": "Cola Zero", "price": 30, "type": "drink", "isFavorite": false, "inCart": false},
+    {"name": "Fanta", "price": 30, "type": "drink", "isFavorite": false, "inCart": false},
+    {"name": "Coke", "price": 30, "type": "drink", "isFavorite": false, "inCart": false},
+    {"name": "Ayran", "price": 30, "type": "drink", "isFavorite": false, "inCart": false},
+    {"name": "Orange Juice", "price": 80, "type": "drink", "isFavorite": false, "inCart": false},
+    {"name": "Ice Tea", "price": 30, "type": "drink", "isFavorite": false, "inCart": false},
+  ];
 
-class _SearchScreen extends State<SearchScreen>{
+  final List<Map<String, dynamic>> foodMenu = [
+    {"name": "Schnitzel", "price": 120, "type": "menu", "isFavorite": false, "inCart": false},
+    {"name": "Honey Mustard Schnitzel", "price": 130, "type": "menu", "isFavorite": false, "inCart": false},
+    {"name": "Grilled Chicken Fillet", "price": 125, "type": "menu", "isFavorite": false, "inCart": false},
+    {"name": "Mushroom Schnitzel", "price": 135, "type": "menu", "isFavorite": false, "inCart": false},
+    {"name": "Chili Schnitzel", "price": 135, "type": "menu", "isFavorite": false, "inCart": false},
+  ];
+
+  final List<Map<String, dynamic>> foods = [
+    {"name": "Meat Quesadilla", "price": 110, "type": "food", "isFavorite": false, "inCart": false},
+    {"name": "Chicken Quesadilla", "price": 100, "type": "food", "isFavorite": false, "inCart": false},
+  ];
+
   @override
-  Widget build(BuildContext context){
+  void initState() {
+    super.initState();
+    final allItems = [...drinks, ...foodMenu, ...foods];
+    results = allItems;
+  }
+  void updateSearch(String query) {
+    final search = query.toLowerCase();
+    final allItems = [...drinks, ...foodMenu, ...foods];
+    setState(() {
+      if (search.isEmpty) {
+        results = allItems;
+      } else {
+        results = allItems
+            .where((item) => item["name"].toString().toLowerCase().contains(search))
+            .toList();
+      }
+    });
+  }
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: const Text("Search"),
+        backgroundColor: Colors.blue.shade900,
+        centerTitle: true,
+      ),
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: TextField(
+              controller: _searchController,
+              onChanged: updateSearch,
+              decoration: InputDecoration(
+                hintText: "Search for drinks, foods, or menus...",
+                filled: true,
+                fillColor: Colors.grey.shade200,
+                prefixIcon: const Icon(Icons.search),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+              ),
+            ),
+          ),
+          Expanded(
+            child: ListView.builder(
+              itemCount: results.length,
+              itemBuilder: (context, index) {
+                final item = results[index];
+                final bool isFavorite = item["isFavorite"] ?? false;
+                final bool inCart = item["inCart"] ?? false;
 
+                return Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.purple.shade50,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        flex: 3,
+                        child: Text(item["name"], style: const TextStyle(fontSize: 16)),
+                      ),
+                      IconButton(
+                        icon: Icon(
+                          isFavorite ? Icons.star : Icons.star_border,
+                          color: Colors.black,
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            item["isFavorite"] = !isFavorite;
+                          });
+                        },
+                      ),
+                      IconButton(
+                        icon: Icon(
+                          inCart ? Icons.shopping_cart : Icons.shopping_cart_outlined,
+                          color: Colors.black,
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            item["inCart"] = !inCart;
+                          });
+                        },
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+      bottomNavigationBar: CustomNavBar(
+        currentIndexx: 1, // 1 = Search tab
+        onTap: (index) {
+          switch (index) {
+            case 0:
+              Navigator.pushNamed(context, "/Home");
+              break;
+            case 1:
+              Navigator.pushNamed(context, "/Search");
+              break;
+            case 2:
+              Navigator.pushNamed(context, "/Fortune");
+              break;
+            case 3:
+              Navigator.pushNamed(context, "/Profile");
+              break;
+          }
+        },
+      ),
     );
   }
 } 
@@ -649,21 +778,221 @@ class _RestaurantScreen extends State<RestaurantScreen>{
 
 //MenuScreen
 
-class MenuScreen extends StatefulWidget{
+class MenuScreen extends StatefulWidget {
   const MenuScreen({super.key});
 
   @override
-  State<MenuScreen> createState() =>_MenuScreen(); 
+  State<MenuScreen> createState() => _MenuScreenState();
 }
 
-class _MenuScreen extends State<MenuScreen>{
-  @override
-  Widget build(BuildContext context){
-    return Scaffold(
+class _MenuScreenState extends State<MenuScreen> {
+  int selectedCategory = 1; // 0: Food, 1: Drinks, 2: Food(Menu)
 
+  final List<Map<String, dynamic>> drinks = [
+    {"name": "Sprite", "price": 30, "isFavorite": false, "inCart": false},
+    {"name": "Water", "price": 15, "isFavorite": false, "inCart": false},
+    {"name": "Tea", "price": 15, "isFavorite": false, "inCart": false},
+    {"name": "Cola Zero", "price": 30, "isFavorite": false, "inCart": false},
+    {"name": "Fanta", "price": 30, "isFavorite": false, "inCart": false},
+    {"name": "Coke", "price": 30, "isFavorite": false, "inCart": false},
+    {"name": "Ayran", "price": 30, "isFavorite": false, "inCart": false},
+    {"name": "Orange Juice", "price": 80, "isFavorite": false, "inCart": false},
+    {"name": "Ice Tea", "price": 30, "isFavorite": false, "inCart": false},
+  ];
+
+  final List<Map<String, dynamic>> foodMenu = [
+    {"name": "Schnitzel", "price": 120, "isFavorite": false, "inCart": false},
+    {"name": "Honey Mustard Schnitzel", "price": 130, "isFavorite": false, "inCart": false},
+    {"name": "Grilled Chicken Fillet", "price": 125, "isFavorite": false, "inCart": false},
+    {"name": "Mushroom Schnitzel", "price": 135, "isFavorite": false, "inCart": false},
+    {"name": "Chili Schnitzel", "price": 135, "isFavorite": false, "inCart": false},
+  ];
+
+  final List<Map<String, dynamic>> foods = [
+    {"name": "Meat Quesadilla", "price": 110, "isFavorite": false, "inCart": false},
+    {"name": "Chicken Quesadilla", "price": 100, "isFavorite": false, "inCart": false},
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    SystemChrome.setSystemUIOverlayStyle(
+      SystemUiOverlayStyle(
+        statusBarColor: Colors.blue.shade900,
+        statusBarIconBrightness: Brightness.light,
+        statusBarBrightness: Brightness.dark,
+      ),
+    );
+
+    return SafeArea(
+      child: Scaffold(
+        backgroundColor: Colors.white,
+        appBar: AppBar(
+          title: const Text(
+            "Menu",
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: Colors.white),
+          ),
+          centerTitle: true,
+          backgroundColor: Colors.blue.shade900,
+        ),
+        body: Column(
+          children: [
+            const SizedBox(height: 20),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                buildCategoryButton("Food", 0),
+                const SizedBox(width: 10),
+                buildCategoryButton("Drinks", 1),
+                const SizedBox(width: 10),
+                buildCategoryButton("Food (Menu)", 2),
+              ],
+            ),
+            const SizedBox(height: 20),
+            Expanded(
+              child: getSelectedMenu(),
+            ),
+            Container(
+              color: Colors.white,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              child: SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.pushNamed(context, "/Sepet");
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.red,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  child: const Text(
+                    "Go To Your Cart!",
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+        bottomNavigationBar: CustomNavBar(
+          currentIndexx: 1, // ← you can change this based on the screen index
+          onTap: (index) {
+            switch (index) {
+              case 0:
+                Navigator.pushNamed(context, "/Home");
+                break;
+              case 1:
+                Navigator.pushNamed(context, "/Search");
+                break;
+              case 2:
+                Navigator.pushNamed(context, "/Fortune");
+                break;
+              case 3:
+                Navigator.pushNamed(context, "/Profile");
+                break;
+            }
+          },
+        ),
+      ),
     );
   }
-} 
+
+  Widget buildCategoryButton(String title, int index) {
+    bool isSelected = selectedCategory == index;
+    return ElevatedButton(
+      onPressed: () {
+        setState(() {
+          selectedCategory = index;
+        });
+      },
+      style: ElevatedButton.styleFrom(
+        backgroundColor: isSelected ? Colors.blue.shade900 : Colors.grey.shade300,
+        foregroundColor: isSelected ? Colors.white : Colors.black,
+      ),
+      child: Text(title),
+    );
+  }
+
+  Widget getSelectedMenu() {
+    List<Map<String, dynamic>> selectedList;
+    if (selectedCategory == 0) {
+      selectedList = foods;
+    } else if (selectedCategory == 1) {
+      selectedList = drinks;
+    } else {
+      selectedList = foodMenu;
+    }
+
+    return ListView.builder(
+      itemCount: selectedList.length,
+      itemBuilder: (context, index) {
+        final item = selectedList[index];
+        final bool isFavorite = item["isFavorite"] ?? false;
+        final bool inCart = item["inCart"] ?? false;
+
+        return Container(
+          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          decoration: BoxDecoration(
+            color: Colors.purple.shade50,
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Row(
+            children: [
+              Expanded(
+                flex: 3,
+                child: Text(
+                  item["name"],
+                  style: const TextStyle(fontSize: 16),
+                ),
+              ),
+              Expanded(
+                flex: 1,
+                child: IconButton(
+                  icon: Icon(
+                    isFavorite ? Icons.star : Icons.star_border,
+                    color: Colors.black,
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      selectedList[index]["isFavorite"] = !isFavorite;
+                    });
+                  },
+                ),
+              ),
+              Expanded(
+                flex: 2,
+                child: Text(
+                  "${item["price"]}₺",
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(fontSize: 16),
+                ),
+              ),
+              Expanded(
+                flex: 1,
+                child: IconButton(
+                  icon: Icon(
+                    inCart ? Icons.shopping_cart : Icons.shopping_cart_outlined,
+                    color: Colors.black,
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      selectedList[index]["inCart"] = !inCart;
+                    });
+                  },
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+}
+
+
 
 
 //SepetScreen
