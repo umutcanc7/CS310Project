@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'navigation_bar.dart';
 
+
 void main (){
   runApp(MaterialApp(
     title: "Project phase 2",
-    initialRoute: "login",
+    initialRoute: "/Login",
     routes:{
       "/Login":(context) => LoginScreen(), //1
       "/Register" :(context)=>RegisterScreen(), //2
@@ -34,22 +35,11 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  int _currentIndex = 0;
-
-
+ 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('My App')),
-      body: _pages[_currentIndex],
-      bottomNavigationBar: CustomNavBar(
-        currentIndexx: _currentIndex,
-        onTap: (int index) {
-          setState(() {
-            _currentIndex = index;
-          });
-        },
-      ),
+
     );
   }
 }
