@@ -9,7 +9,7 @@ void main (){
   runApp(MaterialApp(
     debugShowCheckedModeBanner: false,
     title: "Project phase 2",
-    initialRoute: "/Menu",
+    initialRoute: "/Login",
     routes:{
       "/Login":(context) => LoginScreen(), //1
       "/Register" :(context)=>RegisterScreen(), //2
@@ -31,18 +31,96 @@ void main (){
     },
   ));
 }
-class HomeScreen extends StatefulWidget {
+class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
-}
-class _HomeScreenState extends State<HomeScreen> {
- 
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
+      body: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(20),
+            decoration: const BoxDecoration(
+              color: Color(0xFF1C2641),
+              borderRadius: BorderRadius.only(
+                bottomLeft: Radius.circular(30),
+                bottomRight: Radius.circular(30),
+              ),
+            ),
+            child: Row(
+              children: [
+                Image.asset(
+                  'assets/sepet.jpg', // Logoyu buraya koymalısın
+                  width: 100,
+                ),
+                const SizedBox(width: 10),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: const [
+                    Text(
+                      'SABANCI SEPETİ',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    Text(
+                      'Order. Eat. Repeat!',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 30),
+          buildNavigationButton(context, 'RESTAURANTS', '/Restaurant'),
+          buildNavigationButton(context, 'FAVOURITES', '/Favourites'),
+          buildNavigationButton(context, 'ORDER STATUS', '/OrderStatus'),
+        ],
+      ),
+      bottomNavigationBar: CustomNavBar(
+        currentIndexx: 0,
+        onTap: (int index) {
+          if (index == 3) {
+            Navigator.pushNamed(context, '/Profile');
+          }
+        },
+      ),
+    );
+  }
 
+  Widget buildNavigationButton(BuildContext context, String label, String routeName) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      child: ElevatedButton(
+        onPressed: () {
+          Navigator.pushNamed(context, routeName);
+        },
+        style: ElevatedButton.styleFrom(
+          minimumSize: const Size.fromHeight(60),
+          backgroundColor: Colors.white,
+          foregroundColor: Colors.black,
+          elevation: 4,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+            side: const BorderSide(color: Color(0xFF1C2641), width: 2),
+          ),
+        ),
+        child: Text(
+          label,
+          style: const TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 18,
+          ),
+        ),
+      ),
     );
   }
 }
@@ -760,21 +838,94 @@ class _SearchScreenState extends State<SearchScreen> {
 } 
 
 //RestaurantScreen
-class RestaurantScreen extends StatefulWidget{
+class RestaurantScreen extends StatelessWidget {
   const RestaurantScreen({super.key});
 
   @override
-  State<RestaurantScreen> createState() =>_RestaurantScreen(); 
-}
-
-class _RestaurantScreen extends State<RestaurantScreen>{
-  @override
-  Widget build(BuildContext context){
+  Widget build(BuildContext context) {
     return Scaffold(
-
+      appBar: AppBar(
+        backgroundColor: const Color(0xFF1C2641),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: const Text(
+          'Restaurants',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+        ),
+        centerTitle: true,
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: GridView.count(
+          crossAxisCount: 2,
+          crossAxisSpacing: 16,
+          mainAxisSpacing: 16,
+          children: [
+            buildRestaurantCard(
+              context,
+              'assets/kucukev.jpg',
+              '/Menu', // yönlendirilecek route
+            ),
+            buildRestaurantCard(
+              context,
+              'assets/pizzabulls.jpg',
+              '/Menu',
+            ),
+            buildRestaurantCard(
+              context,
+              'assets/kopuklu.jpg',
+              '/Menu',
+            ),
+            buildRestaurantCard(
+              context,
+              'assets/piazza.jpg',
+              '/Menu',
+            ),
+          ],
+        ),
+      ),
+      bottomNavigationBar: CustomNavBar(
+        currentIndexx: 0,
+        onTap: (int index) {
+          if (index == 0) {
+            Navigator.pushNamed(context, '/Home');
+          }
+        },
+      ),
     );
   }
-} 
+
+  Widget buildRestaurantCard(BuildContext context, String imagePath, String routeName) {
+    return ElevatedButton(
+      onPressed: () {
+        Navigator.pushNamed(context, routeName);
+      },
+      style: ElevatedButton.styleFrom(
+        padding: EdgeInsets.zero,
+        backgroundColor: Colors.white,
+        elevation: 5,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: const BorderSide(color: Color(0xFF1C2641), width: 2),
+        ),
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(16),
+        child: Image.asset(
+          imagePath,
+          fit: BoxFit.cover,
+          height: double.infinity,
+          width: double.infinity,
+        ),
+      ),
+    );
+  }
+}
 
 //MenuScreen
 
