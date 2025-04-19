@@ -5,6 +5,37 @@ import 'package:flutter/services.dart';
 import 'dart:io' show Platform;
 import 'package:flutter/cupertino.dart';
 
+// Cart Service to manage cart state
+class CartService {
+  static final CartService _instance = CartService._internal();
+  factory CartService() => _instance;
+  CartService._internal();
+
+  final List<Map<String, dynamic>> _cartItems = [];
+  
+  List<Map<String, dynamic>> get cartItems => _cartItems;
+  
+  double get totalAmount => _cartItems.fold(0, (sum, item) => sum + (item["price"] as num));
+
+  void addToCart(Map<String, dynamic> item) {
+    // Check if item already exists
+    final existingIndex = _cartItems.indexWhere((element) => element["name"] == item["name"]);
+    if (existingIndex != -1) {
+      _cartItems[existingIndex]["quantity"] = (_cartItems[existingIndex]["quantity"] ?? 1) + 1;
+    } else {
+      _cartItems.add({...item, "quantity": 1});
+    }
+  }
+
+  void removeFromCart(String itemName) {
+    _cartItems.removeWhere((element) => element["name"] == itemName);
+  }
+
+  void clearCart() {
+    _cartItems.clear();
+  }
+}
+
 void main (){
   runApp(MaterialApp(
     debugShowCheckedModeBanner: false,
@@ -387,7 +418,7 @@ class _LoginScreen extends State<LoginScreen>{
                       Navigator.pushNamed(context, '/Register');
                     },
                     child: const Text(
-                      "Don’t have an account?",
+                      "Don't have an account?",
                       style: TextStyle(
                           fontWeight: FontWeight.bold, color: Colors.black),
                     ),
@@ -744,7 +775,7 @@ class _SearchScreenState extends State<SearchScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Search"),
-        backgroundColor: Colors.blue.shade900,
+        backgroundColor: const Color(0xFF1C2641),
         centerTitle: true,
       ),
       body: Column(
@@ -940,35 +971,35 @@ class _MenuScreenState extends State<MenuScreen> {
   int selectedCategory = 1; // 0: Food, 1: Drinks, 2: Food(Menu)
 
   final List<Map<String, dynamic>> drinks = [
-    {"name": "Sprite", "price": 30, "isFavorite": false, "inCart": false},
-    {"name": "Water", "price": 15, "isFavorite": false, "inCart": false},
-    {"name": "Tea", "price": 15, "isFavorite": false, "inCart": false},
-    {"name": "Cola Zero", "price": 30, "isFavorite": false, "inCart": false},
-    {"name": "Fanta", "price": 30, "isFavorite": false, "inCart": false},
-    {"name": "Coke", "price": 30, "isFavorite": false, "inCart": false},
-    {"name": "Ayran", "price": 30, "isFavorite": false, "inCart": false},
-    {"name": "Orange Juice", "price": 80, "isFavorite": false, "inCart": false},
-    {"name": "Ice Tea", "price": 30, "isFavorite": false, "inCart": false},
+    {"name": "Sprite", "price": 30, "isFavorite": false},
+    {"name": "Water", "price": 15, "isFavorite": false},
+    {"name": "Tea", "price": 15, "isFavorite": false},
+    {"name": "Cola Zero", "price": 30, "isFavorite": false},
+    {"name": "Fanta", "price": 30, "isFavorite": false},
+    {"name": "Coke", "price": 30, "isFavorite": false},
+    {"name": "Ayran", "price": 30, "isFavorite": false},
+    {"name": "Orange Juice", "price": 80, "isFavorite": false},
+    {"name": "Ice Tea", "price": 30, "isFavorite": false},
   ];
 
   final List<Map<String, dynamic>> foodMenu = [
-    {"name": "Schnitzel", "price": 120, "isFavorite": false, "inCart": false},
-    {"name": "Honey Mustard Schnitzel", "price": 130, "isFavorite": false, "inCart": false},
-    {"name": "Grilled Chicken Fillet", "price": 125, "isFavorite": false, "inCart": false},
-    {"name": "Mushroom Schnitzel", "price": 135, "isFavorite": false, "inCart": false},
-    {"name": "Chili Schnitzel", "price": 135, "isFavorite": false, "inCart": false},
+    {"name": "Schnitzel", "price": 120, "isFavorite": false},
+    {"name": "Honey Mustard Schnitzel", "price": 130, "isFavorite": false},
+    {"name": "Grilled Chicken Fillet", "price": 125, "isFavorite": false},
+    {"name": "Mushroom Schnitzel", "price": 135, "isFavorite": false},
+    {"name": "Chili Schnitzel", "price": 135, "isFavorite": false},
   ];
 
   final List<Map<String, dynamic>> foods = [
-    {"name": "Meat Quesadilla", "price": 110, "isFavorite": false, "inCart": false},
-    {"name": "Chicken Quesadilla", "price": 100, "isFavorite": false, "inCart": false},
+    {"name": "Meat Quesadilla", "price": 110, "isFavorite": false},
+    {"name": "Chicken Quesadilla", "price": 100, "isFavorite": false},
   ];
 
   @override
   Widget build(BuildContext context) {
     SystemChrome.setSystemUIOverlayStyle(
       SystemUiOverlayStyle(
-        statusBarColor: Colors.blue.shade900,
+        statusBarColor: const Color(0xFF1C2641),
         statusBarIconBrightness: Brightness.light,
         statusBarBrightness: Brightness.dark,
       ),
@@ -982,8 +1013,12 @@ class _MenuScreenState extends State<MenuScreen> {
             "Menu",
             style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: Colors.white),
           ),
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back, color: Colors.white),
+            onPressed: () => Navigator.pop(context),
+          ),
           centerTitle: true,
-          backgroundColor: Colors.blue.shade900,
+          backgroundColor: const Color(0xFF1C2641),
         ),
         body: Column(
           children: [
@@ -1059,7 +1094,7 @@ class _MenuScreenState extends State<MenuScreen> {
         });
       },
       style: ElevatedButton.styleFrom(
-        backgroundColor: isSelected ? Colors.blue.shade900 : Colors.grey.shade300,
+        backgroundColor: isSelected ? const Color(0xFF1C2641) : Colors.grey.shade300,
         foregroundColor: isSelected ? Colors.white : Colors.black,
       ),
       child: Text(title),
@@ -1081,7 +1116,7 @@ class _MenuScreenState extends State<MenuScreen> {
       itemBuilder: (context, index) {
         final item = selectedList[index];
         final bool isFavorite = item["isFavorite"] ?? false;
-        final bool inCart = item["inCart"] ?? false;
+        final bool inCart = CartService().cartItems.any((cartItem) => cartItem["name"] == item["name"]);
 
         return Container(
           margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
@@ -1130,7 +1165,11 @@ class _MenuScreenState extends State<MenuScreen> {
                   ),
                   onPressed: () {
                     setState(() {
-                      selectedList[index]["inCart"] = !inCart;
+                      if (inCart) {
+                        CartService().removeFromCart(item["name"]);
+                      } else {
+                        CartService().addToCart(item);
+                      }
                     });
                   },
                 ),
@@ -1147,72 +1186,761 @@ class _MenuScreenState extends State<MenuScreen> {
 
 
 //SepetScreen
-class SepetScreen extends StatefulWidget{
+class SepetScreen extends StatefulWidget {
   const SepetScreen({super.key});
 
   @override
-  State<SepetScreen> createState() =>_SepetScreen(); 
+  State<SepetScreen> createState() => _SepetScreenState();
 }
 
-class _SepetScreen extends State<SepetScreen>{
-  @override
-  Widget build(BuildContext context){
-    return Scaffold(
+class _SepetScreenState extends State<SepetScreen> {
+  final TextEditingController _noteController = TextEditingController();
+  bool _noCutlery = false;
+  final CartService _cartService = CartService();
 
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: const Color(0xFF1C2641),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: const Text(
+          'Your Cart',
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        centerTitle: true,
+      ),
+      body: Column(
+        children: [
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Please proceed with the payment',
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.grey,
+                    ),
+                  ),
+                  const Text(
+                    'Here is your order!',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  // Cart items
+                  if (_cartService.cartItems.isEmpty)
+                    const Center(
+                      child: Text(
+                        'Your cart is empty',
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.grey,
+                        ),
+                      ),
+                    )
+                  else
+                    ..._cartService.cartItems.map((item) => Padding(
+                      padding: const EdgeInsets.only(bottom: 12),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.monetization_on_outlined),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  item["name"],
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                  ),
+                                ),
+                                if (item["quantity"] != null && item["quantity"] > 1)
+                                  Text(
+                                    'Quantity: ${item["quantity"]}',
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                      color: Colors.grey,
+                                    ),
+                                  ),
+                              ],
+                            ),
+                          ),
+                          Text(
+                            '${item["price"].toStringAsFixed(1)}₺',
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.delete_outline),
+                            onPressed: () {
+                              setState(() {
+                                _cartService.removeFromCart(item["name"]);
+                              });
+                            },
+                          ),
+                        ],
+                      ),
+                    )).toList(),
+                  if (_cartService.cartItems.isNotEmpty) ...[
+                    const Divider(),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text(
+                            'Total:',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          Text(
+                            '${_cartService.totalAmount.toStringAsFixed(1)}₺',
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                  const SizedBox(height: 20),
+                  // Note section
+                  TextField(
+                    controller: _noteController,
+                    decoration: const InputDecoration(
+                      hintText: 'Add a note:',
+                      border: OutlineInputBorder(),
+                    ),
+                    maxLines: 3,
+                  ),
+                  const SizedBox(height: 20),
+                  // Cutlery toggle
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        "I don't want plastic cutlery",
+                        style: TextStyle(fontSize: 16),
+                      ),
+                      Switch(
+                        value: _noCutlery,
+                        onChanged: (value) {
+                          setState(() {
+                            _noCutlery = value;
+                          });
+                        },
+                        activeColor: const Color(0xFF1C2641),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+          // Confirm button
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: ElevatedButton(
+              onPressed: _cartService.cartItems.isEmpty ? null : () {
+                Navigator.pushNamed(context, '/DeliveryInfo');
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF1C2641),
+                minimumSize: const Size(double.infinity, 50),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                disabledBackgroundColor: Colors.grey,
+              ),
+              child: const Text(
+                'Confirm Cart',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+      bottomNavigationBar: CustomNavBar(
+        currentIndexx: 0,
+        onTap: (int index) {
+          switch (index) {
+            case 0:
+              Navigator.pushNamed(context, '/Home');
+              break;
+            case 1:
+              Navigator.pushNamed(context, '/Search');
+              break;
+            case 2:
+              Navigator.pushNamed(context, '/Fortune');
+              break;
+            case 3:
+              Navigator.pushNamed(context, '/Profile');
+              break;
+          }
+        },
+      ),
     );
   }
 } 
 
 
 //DeliveryInfoScreen
-class DeliveryInfoScreen extends StatefulWidget{
+class DeliveryInfoScreen extends StatefulWidget {
   const DeliveryInfoScreen({super.key});
 
   @override
-  State<DeliveryInfoScreen> createState() =>_DeliveryInfoScreen(); 
+  State<DeliveryInfoScreen> createState() => _DeliveryInfoScreen();
 }
 
-class _DeliveryInfoScreen extends State<DeliveryInfoScreen>{
+class _DeliveryInfoScreen extends State<DeliveryInfoScreen> {
+  final TextEditingController _phoneController = TextEditingController();
+  String _selectedLocation = 'A3-A4';
+  final List<String> _locations = [
+    'A3-A4',
+    'FENS',
+    'FMAN',
+    'UC'
+  ];
+
   @override
-  Widget build(BuildContext context){
+  Widget build(BuildContext context) {
     return Scaffold(
-
-    );
-  }
-} 
-
-
-//ReviewScreen
-class ReviewScreen extends StatefulWidget{
-  const ReviewScreen({super.key});
-
-  @override
-  State<ReviewScreen> createState() =>_ReviewScreen(); 
-}
-
-class _ReviewScreen extends State<ReviewScreen>{
-  @override
-  Widget build(BuildContext context){
-    return Scaffold(
-
+      appBar: AppBar(
+        backgroundColor: const Color(0xFF1C2641),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: const Text(
+          'Delivery Information',
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        centerTitle: true,
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Estimated time of delivery: 25 min.',
+              style: TextStyle(
+                fontSize: 16,
+                color: Colors.grey,
+              ),
+            ),
+            const SizedBox(height: 24),
+            const Text(
+              'Internal Phone Number',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 8),
+            TextField(
+              controller: _phoneController,
+              keyboardType: TextInputType.phone,
+              decoration: InputDecoration(
+                hintText: 'Enter Number',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                filled: true,
+                fillColor: Colors.white,
+              ),
+            ),
+            const SizedBox(height: 24),
+            const Text(
+              'Location',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.grey),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: DropdownButtonHideUnderline(
+                child: DropdownButton<String>(
+                  value: _selectedLocation,
+                  isExpanded: true,
+                  items: _locations.map((String location) {
+                    return DropdownMenuItem<String>(
+                      value: location,
+                      child: Text(location),
+                    );
+                  }).toList(),
+                  onChanged: (String? newValue) {
+                    if (newValue != null) {
+                      setState(() {
+                        _selectedLocation = newValue;
+                      });
+                    }
+                  },
+                ),
+              ),
+            ),
+            const SizedBox(height: 24),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () {
+                  // Save delivery information and proceed
+                  if (_phoneController.text.isNotEmpty) {
+                    Navigator.pushNamed(context, '/OrderStatus');
+                  }
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF1C2641),
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                child: const Text(
+                  'Confirm Order',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+      bottomNavigationBar: CustomNavBar(
+        currentIndexx: 0,
+        onTap: (int index) {
+          switch (index) {
+            case 0:
+              Navigator.pushNamed(context, '/Home');
+              break;
+            case 1:
+              Navigator.pushNamed(context, '/Search');
+              break;
+            case 2:
+              Navigator.pushNamed(context, '/Fortune');
+              break;
+            case 3:
+              Navigator.pushNamed(context, '/Profile');
+              break;
+          }
+        },
+      ),
     );
   }
 } 
 
 
 //OrderStatusScreen
-class OrderStatusScreen extends StatefulWidget{
+class OrderStatusScreen extends StatefulWidget {
   const OrderStatusScreen({super.key});
 
   @override
-  State<OrderStatusScreen> createState() =>_OrderStatusScreen(); 
+  State<OrderStatusScreen> createState() => _OrderStatusScreen();
 }
 
-class _OrderStatusScreen extends State<OrderStatusScreen>{
-  @override
-  Widget build(BuildContext context){
-    return Scaffold(
+class _OrderStatusScreen extends State<OrderStatusScreen> {
+  int _currentStatus = 0; // 0: Order Picking, 1: On the way
+  final List<Map<String, dynamic>> _statusSteps = [
+    {
+      'title': 'Order Picking',
+      'estimatedTime': '3 mins',
+      'icon': Icons.store
+    },
+    {
+      'title': 'On the way',
+      'estimatedTime': '10 mins',
+      'icon': Icons.delivery_dining
+    },
+  ];
 
+  void _updateStatus() {
+    setState(() {
+      if (_currentStatus < _statusSteps.length - 1) {
+        _currentStatus++;
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: const Color(0xFF1C2641),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: const Text(
+          'ORDER STATUS',
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        centerTitle: true,
+      ),
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            // Delivery Person Info Card
+            Container(
+              width: double.infinity,
+              margin: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: const Color(0xFF1C2641),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    width: 50,
+                    height: 50,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(25),
+                    ),
+                    child: const Icon(
+                      Icons.person,
+                      color: Color(0xFF1C2641),
+                      size: 30,
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  const Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Arda',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Text(
+                          'Delivery boy',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 14,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  IconButton(
+                    onPressed: () {
+                      // Handle phone call
+                    },
+                    icon: const Icon(
+                      Icons.phone,
+                      color: Colors.white,
+                      size: 28,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            // Status Steps
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                children: List.generate(_statusSteps.length, (index) {
+                  final step = _statusSteps[index];
+                  final isActive = index <= _currentStatus;
+                  final isLast = index == _statusSteps.length - 1;
+
+                  return GestureDetector(
+                    onTap: _updateStatus,
+                    child: Row(
+                      children: [
+                        // Status Icon Column
+                        Column(
+                          children: [
+                            Container(
+                              width: 40,
+                              height: 40,
+                              decoration: BoxDecoration(
+                                color: isActive ? const Color(0xFF1C2641) : Colors.grey.shade300,
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(
+                                step['icon'],
+                                color: Colors.white,
+                              ),
+                            ),
+                            if (!isLast)
+                              Container(
+                                width: 2,
+                                height: 50,
+                                color: isActive ? const Color(0xFF1C2641) : Colors.grey.shade300,
+                              ),
+                          ],
+                        ),
+                        const SizedBox(width: 16),
+                        // Status Text Column
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                step['title'],
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color: isActive ? Colors.black : Colors.grey,
+                                ),
+                              ),
+                              Text(
+                                'Estimated time: ${step['estimatedTime']}',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: isActive ? Colors.black54 : Colors.grey,
+                                ),
+                              ),
+                              if (!isLast) const SizedBox(height: 30),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                }),
+              ),
+            ),
+            // Review Order Button
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.pushNamed(context, '/Review');
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF1C2641),
+                  minimumSize: const Size(double.infinity, 50),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                child: const Text(
+                  'Review Order',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+      bottomNavigationBar: CustomNavBar(
+        currentIndexx: 0,
+        onTap: (int index) {
+          switch (index) {
+            case 0:
+              Navigator.pushNamed(context, '/Home');
+              break;
+            case 1:
+              Navigator.pushNamed(context, '/Search');
+              break;
+            case 2:
+              Navigator.pushNamed(context, '/Fortune');
+              break;
+            case 3:
+              Navigator.pushNamed(context, '/Profile');
+              break;
+          }
+        },
+      ),
+    );
+  }
+}
+
+//ReviewScreen
+class ReviewScreen extends StatefulWidget {
+  const ReviewScreen({super.key});
+
+  @override
+  State<ReviewScreen> createState() => _ReviewScreen();
+}
+
+class _ReviewScreen extends State<ReviewScreen> {
+  int speedRating = 0;
+  int serviceRating = 0;
+  int tasteRating = 0;
+  final TextEditingController _commentController = TextEditingController();
+
+  Widget buildRatingRow(String label, int rating, Function(int) onRatingChanged) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Row(
+          children: List.generate(5, (index) {
+            return GestureDetector(
+              onTap: () => onRatingChanged(index + 1),
+              child: Icon(
+                index < rating ? Icons.star : Icons.star_border,
+                color: const Color(0xFF1C2641),
+                size: 32,
+              ),
+            );
+          }),
+        ),
+        const SizedBox(height: 16),
+      ],
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: const Color(0xFF1C2641),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: const Text(
+          'REVIEW YOUR DELIVERY',
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        centerTitle: true,
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'THANK YOU FOR YOUR ORDER!',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 24),
+            buildRatingRow('Speed', speedRating, (rating) {
+              setState(() => speedRating = rating);
+            }),
+            buildRatingRow('Service', serviceRating, (rating) {
+              setState(() => serviceRating = rating);
+            }),
+            buildRatingRow('Taste', tasteRating, (rating) {
+              setState(() => tasteRating = rating);
+            }),
+            const Text(
+              'Optional Comment',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 8),
+            TextField(
+              controller: _commentController,
+              maxLines: 4,
+              decoration: InputDecoration(
+                filled: true,
+                fillColor: Colors.grey.shade200,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: BorderSide.none,
+                ),
+              ),
+            ),
+            const SizedBox(height: 24),
+            ElevatedButton(
+              onPressed: () {
+                // Handle submit review
+                Navigator.pushNamed(context, '/Home');
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF1C2641),
+                minimumSize: const Size(double.infinity, 50),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              child: const Text(
+                'Submit Review',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+      bottomNavigationBar: CustomNavBar(
+        currentIndexx: 0,
+        onTap: (int index) {
+          switch (index) {
+            case 0:
+              Navigator.pushNamed(context, '/Home');
+              break;
+            case 1:
+              Navigator.pushNamed(context, '/Search');
+              break;
+            case 2:
+              Navigator.pushNamed(context, '/Fortune');
+              break;
+            case 3:
+              Navigator.pushNamed(context, '/Profile');
+              break;
+          }
+        },
+      ),
     );
   }
 } 
