@@ -40,7 +40,7 @@ void main (){
   runApp(MaterialApp(
     debugShowCheckedModeBanner: false,
     title: "Project phase 2",
-    initialRoute: "/Login",
+    initialRoute: "/Profile",
     routes:{
       "/Login":(context) => LoginScreen(), //1
       "/Register" :(context)=>RegisterScreen(), //2
@@ -117,10 +117,21 @@ class HomeScreen extends StatelessWidget {
         ],
       ),
       bottomNavigationBar: CustomNavBar(
-        currentIndexx: 0,
-        onTap: (int index) {
-          if (index == 3) {
-            Navigator.pushNamed(context, '/Profile');
+        currentIndexx: 3,
+        onTap: (index) {
+          switch (index) {
+            case 0:
+              
+              break;
+            case 1:
+              Navigator.pushNamed(context, "/Search");
+              break;
+            case 2:
+              Navigator.pushNamed(context, "/Fortune");
+              break;
+            case 3:
+              Navigator.pushNamed(context, "/Profile");
+              break;
           }
         },
       ),
@@ -156,94 +167,242 @@ class HomeScreen extends StatelessWidget {
   }
 }
 
-class ProfilePage extends StatelessWidget{
-  const ProfilePage({super.key});
-  @override
-  Widget build(BuildContext context){
-    
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-        "PROFILE",
-        style:TextStyle(
-          color:Colors.white,
-          letterSpacing: 2.0,
-          fontSize: 20,
-          fontWeight: FontWeight.bold),
-          
-          ),
-          centerTitle: false,
-          elevation: 10,
-          shadowColor: const Color.fromARGB(255, 133, 146, 218),
-          backgroundColor: const Color.fromARGB(255, 37, 57, 170),
-        ),
-      body: 
-      Row(
-        children:<Widget>[
-          Expanded(flex:2,child:ColoredBox(color: const Color.fromARGB(255, 40, 50, 194))),
-          Expanded(flex:10,
-          child:Column(
-            children: [
-            Padding(padding: EdgeInsets.all(20),
-            child:Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                CircleAvatar(
-                  radius: 50,
-                  child: Icon(Icons.person, size: 40, color: Colors.white)
-                
-                ),
-                Column(children: [
-                  Text("User_Name",
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontSize:8,
-                    fontWeight: FontWeight.bold
-                  )
-                  ),
-                  Text("Mobile Phone",
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontSize:8,
-                    fontWeight: FontWeight.bold
-                  ))
-                ]),
-              ],
-            )
-            )
-          ],)),
-          Expanded(flex:2,child:ColoredBox(color:const Color.fromARGB(255, 40, 50, 194))),
-        ]
-      ),
-      bottomNavigationBar: CustomNavBar(
-  currentIndexx: 3,
-  onTap: (int index) {
-    if (index == 0) {
-      Navigator.push(context, MaterialPageRoute(builder: (context) => const HomeScreen()));
-    }
-  },
-),
-      );
-      
-  }
-}
 
 
-//Profile Screen
-class ProfileScreen extends StatefulWidget{
+
+class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
 
   @override
-  State<ProfileScreen> createState() => _ProfileScreen(); 
+  State<ProfileScreen> createState() => _ProfileScreen();
 }
-class _ProfileScreen extends State<ProfileScreen>{
-  @override
-  Widget build(BuildContext context){
-    return Scaffold(
 
+class _ProfileScreen extends State<ProfileScreen> {
+  bool showbox = false;
+  String name = "User_Name";
+  String mobilePhone = "Mobile Phone";
+  bool isEditingName = false;
+  bool isEditingPhone = false;
+
+  final TextEditingController _helpController = TextEditingController();
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _phoneController = TextEditingController();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      resizeToAvoidBottomInset: true,
+      appBar: AppBar(
+        title: const Text("PROFILE", style: TextStyle(letterSpacing: 2.0, fontSize: 30, fontWeight: FontWeight.bold, color: Colors.white)),
+        centerTitle: false,
+        elevation: 20,
+        backgroundColor: const Color.fromARGB(255, 37, 57, 170),
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(30),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+  children: [
+    Padding(
+      padding: EdgeInsets.only(right: 25),
+      child: CircleAvatar(
+        radius: 50,
+        child: Icon(Icons.person, size: 40, color: Colors.blueAccent),
+      ),
+    ),
+    Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // 👤 Name Row
+        Row(
+          children: [
+            isEditingName
+                ? SizedBox(
+                    width: 180,
+                    child: TextField(
+                      controller: _nameController..text = name,
+                      onSubmitted: (value) {
+                        setState(() {
+                          name = value;
+                          isEditingName = false;
+                        });
+                      },
+                    ),
+                  )
+                : Text(
+                    name,
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 30,
+                      fontWeight: FontWeight.bold,
+                      fontStyle: FontStyle.italic,
+                    ),
+                  ),
+            SizedBox(width: 5),
+            IconButton(
+              icon: Icon(Icons.edit, size: 18, color: Colors.grey[600]),
+              onPressed: () {
+                setState(() {
+                  isEditingName = true;
+                });
+              },
+            ),
+          ],
+        ),
+
+        // 📱 Phone Row
+        Row(
+          children: [
+            isEditingPhone
+                ? SizedBox(
+                    width: 180,
+                    child: TextField(
+                      controller: _phoneController..text = mobilePhone,
+                      onSubmitted: (value) {
+                        setState(() {
+                          mobilePhone = value;
+                          isEditingPhone = false;
+                        });
+                      },
+                    ),
+                  )
+                : Text(
+                    mobilePhone,
+                    style: TextStyle(
+                      color: Colors.grey[600],
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      fontStyle: FontStyle.italic,
+                    ),
+                  ),
+            SizedBox(width: 5),
+            IconButton(
+              icon: Icon(Icons.edit, size: 18, color: Colors.grey[600]),
+              onPressed: () {
+                setState(() {
+                  isEditingPhone = true;
+                });
+              },
+            ),
+          ],
+        ),
+      ],
+    ),
+  ],
+),
+
+            const SizedBox(height: 20),
+            const Divider(color: Colors.grey, thickness: 1.2),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                Column(children: [Icon(Icons.star, size: 40, color: Colors.amberAccent), const Text("Favorites", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.amberAccent))]),
+                Column(children: [Text("Order Status", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.red)), Icon(Icons.assignment, color: Colors.red, size: 40)]),
+                Column(children: [Text("Points", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.green)), Icon(Icons.auto_awesome, color: Colors.green, size: 40), Text("Available points: 10", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.green, fontSize: 10))]),
+              ],
+            ),
+            const SizedBox(height: 45),
+            Center(
+              child: ElevatedButton(
+                onPressed: () {},
+                child: const Text("           Account Settings         ", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black)),
+              ),
+            ),
+            const SizedBox(height: 15),
+            Center(
+              child: ElevatedButton(
+                onPressed: () {
+                  setState(() {
+                    showbox = !showbox;
+                  });
+                },
+                child: const Text("                 Help Center              ", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black)),
+              ),
+            ),
+            if (showbox)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 20),
+                child: Column(
+                  children: [
+                    TextField(
+                      controller: _helpController,
+                      maxLines: 4,
+                      decoration: const InputDecoration(
+                        hintText: "Describe your problem here...(4 lines maximum):",
+                        border: OutlineInputBorder(),
+                        filled: true,
+                        fillColor: Colors.white,
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.send, size: 20, color: Colors.black),
+                      onPressed: () {
+                        setState(() {
+                          showbox = false;
+                        });
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text("Your issue has been sent!"),
+                            duration: Duration(seconds: 2),
+                          ),
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            const SizedBox(height: 15),
+            Center(
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(builder: (context) => const LoginScreen()),
+                    (route) => false,
+                  );
+                },
+                child: const Text("                   Log Out                    ", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black)),
+              ),
+            ),
+            const SizedBox(height: 15),
+            Center(
+              child: ClipOval(
+                child: Image.asset(
+                  'assets/sepet.jpg',
+                  width: 100,
+                  height: 100,
+                  fit: BoxFit.cover,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+      bottomNavigationBar: CustomNavBar(
+        currentIndexx: 3,
+        onTap: (index) {
+          switch (index) {
+            case 0:
+              Navigator.pushNamed(context, "/Home");
+              break;
+            case 1:
+              Navigator.pushNamed(context, "/Search");
+              break;
+            case 2:
+              Navigator.pushNamed(context, "/Fortune");
+              break;
+            case 3:
+              break;
+          }
+        },
+      ),
     );
   }
 }
+
+
 
 
 //Login Screen
@@ -700,21 +859,119 @@ class _RegisterScreen extends State<RegisterScreen>{
   }
 } 
 
-//Fortune
-class FortuneScreen extends StatefulWidget{
+class FortuneScreen extends StatefulWidget {
   const FortuneScreen({super.key});
 
   @override
-  State<FortuneScreen> createState() =>_FortuneScreen(); 
+  State<FortuneScreen> createState() => _FortuneScreen();
 }
-class _FortuneScreen extends State<FortuneScreen>{
-  @override
-  Widget build(BuildContext context){
-    return Scaffold(
 
+class _FortuneScreen extends State<FortuneScreen> {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text(
+          "Fortune",
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            letterSpacing: 1.2,
+            fontSize: 24,
+            color: Colors.white,
+          ),
+        ),
+        centerTitle: true,
+        backgroundColor: Colors.deepPurple,
+        elevation: 5,
+      ),
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            Stack(
+              children: [
+                
+                Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.deepPurple, width: 3),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      Image.asset('assets/hamburger.jpg', height: 40),
+                      Image.asset('assets/kola.jpeg', height: 40),
+                      Image.asset('assets/plus.jpeg', height: 30),
+                      Image.asset('assets/pizza.jpeg', height: 40),
+                      Image.asset('assets/pie.jpeg', height: 40),
+                      Image.asset('assets/kola.jpeg', height: 40),
+                    ],
+                  ),
+                ),
+                Positioned(
+                  left: 8,
+                  top: 0,
+                  child: Image.asset('assets/sale.png', height: 40),
+                ),
+              ],
+            ),
+              const SizedBox(height: 40),
+            Stack(
+              children: [
+                Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.deepPurple, width: 3),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      Image.asset('assets/pizza.jpeg', height: 40),
+                      Image.asset('assets/pie.jpeg', height: 40),
+                      Image.asset('assets/plus.jpeg', height: 30),
+                      Image.asset('assets/waffle.jpeg', height: 40),
+                      Image.asset('assets/kola.jpeg', height: 40),
+                      Image.asset('assets/suffle.jpeg', height: 40),
+                    ],
+                  ),
+                ),
+                Positioned(
+                  left: 8,
+                  top: 0,
+                  child: Image.asset('assets/limitedoffer.jpeg', height: 40),
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 20),
+          ],
+        ),
+      ),
+      bottomNavigationBar: CustomNavBar(
+        currentIndexx: 2,
+        onTap: (index) {
+          switch (index) {
+            case 0:
+              Navigator.pushNamed(context, "/Home");
+              break;
+            case 1:
+              Navigator.pushNamed(context, "/Search");
+              break;
+            case 2:
+              break;
+            case 3:
+              Navigator.pushNamed(context, "/Profile");
+              break;
+          }
+        },
+      ),
     );
   }
-} 
+}
 
 
 //SearchScreen

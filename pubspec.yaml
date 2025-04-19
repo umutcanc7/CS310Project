@@ -66,6 +66,16 @@ flutter:
   - assets/pizzabulls.jpg
   - assets/kucukev.jpg
   - assets/kopuklu.jpg
+  - assets/suffle.jpeg
+  - assets/waffle.jpeg
+  - assets/plus.jpeg
+  - assets/pizza.jpeg
+  - assets/pie.jpeg
+  - assets/sale.png
+  - assets/kola.jpeg
+  - assets/limitedoffer.jpeg
+  - assets/hamburger.jpg
+
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
