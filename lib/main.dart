@@ -4,6 +4,7 @@ import 'package:email_validator/email_validator.dart';
 import 'package:flutter/services.dart';
 import 'dart:io' show Platform;
 import 'package:flutter/cupertino.dart';
+import 'app_styles.dart';
 
 // Cart Service to manage cart state
 class CartService {
@@ -40,7 +41,7 @@ void main (){
   runApp(MaterialApp(
     debugShowCheckedModeBanner: false,
     title: "Project phase 2",
-    initialRoute: "/Profile",
+    initialRoute: "/Login",
     routes:{
       "/Login":(context) => LoginScreen(), //1
       "/Register" :(context)=>RegisterScreen(), //2
@@ -49,7 +50,7 @@ void main (){
 
       "/Fortune" :(context)=> FortuneScreen(), //4
       "/Profile":(context)=> ProfileScreen(), //5
-      "/Search" :(context)=>SearchScreen(), //6
+      "/Search" :(context) =>SearchScreen(), //6
 
 
       "/Restaurant":(context) => RestaurantScreen() , // 7
@@ -69,59 +70,98 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      body: Column(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(20),
-            decoration: const BoxDecoration(
-              color: Color(0xFF1C2641),
-              borderRadius: BorderRadius.only(
-                bottomLeft: Radius.circular(30),
-                bottomRight: Radius.circular(30),
+      appBar: AppBar(
+        backgroundColor: const Color(0xFF1C2641),
+        elevation: 0,
+        toolbarHeight: 0,
+      ),
+      body: SafeArea(
+        child: Column(
+          children: [
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(24),
+              decoration: const BoxDecoration(
+                color: Color(0xFF1C2641),
+                borderRadius: BorderRadius.only(
+                  bottomLeft: Radius.circular(30),
+                  bottomRight: Radius.circular(30),
+                ),
+              ),
+              child: Row(
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(15),
+                    child: Image.asset(
+                      'assets/sepet.jpg',
+                      width: 80,
+                      height: 80,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  const Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'SABANCI SEPETİ',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 1,
+                        ),
+                      ),
+                      SizedBox(height: 4),
+                      Text(
+                        'Order. Eat. Repeat!',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ),
-            child: Row(
-              children: [
-                Image.asset(
-                  'assets/sepet.jpg', // Logoyu buraya koymalısın
-                  width: 100,
-                ),
-                const SizedBox(width: 10),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: const [
-                    Text(
-                      'SABANCI SEPETİ',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    Text(
-                      'Order. Eat. Repeat!',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 12,
-                      ),
-                    ),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    buildNavigationButton(context, 'RESTAURANTS', '/Restaurant'),
+                    buildNavigationButton(context, 'FAVOURITES', '/Favourites'),
+                    buildNavigationButton(context, 'ORDER STATUS', '/OrderStatus'),
                   ],
                 ),
-              ],
+              ),
             ),
+          ],
+        ),
+      ),
+      floatingActionButton: Container(
+        margin: const EdgeInsets.only(bottom: 16.0), // Navigation bar'dan uzaklık
+        child: FloatingActionButton(
+          onPressed: () => Navigator.pushNamed(context, '/Sepet'),
+          backgroundColor: const Color(0xFF1C2641),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15),
+            side: const BorderSide(color: Colors.white, width: 2),
           ),
-          const SizedBox(height: 30),
-          buildNavigationButton(context, 'RESTAURANTS', '/Restaurant'),
-          buildNavigationButton(context, 'FAVOURITES', '/Favourites'),
-          buildNavigationButton(context, 'ORDER STATUS', '/OrderStatus'),
-        ],
+          child: const Icon(
+            Icons.shopping_cart,
+            color: Colors.white,
+            size: 28,
+          ),
+        ),
       ),
       bottomNavigationBar: CustomNavBar(
-        currentIndexx: 3,
+        currentIndexx: 0,
         onTap: (index) {
           switch (index) {
             case 0:
-              
               break;
             case 1:
               Navigator.pushNamed(context, "/Search");
@@ -140,7 +180,7 @@ class HomeScreen extends StatelessWidget {
 
   Widget buildNavigationButton(BuildContext context, String label, String routeName) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      padding: const EdgeInsets.symmetric(vertical: 10),
       child: ElevatedButton(
         onPressed: () {
           Navigator.pushNamed(context, routeName);
@@ -192,11 +232,10 @@ class _ProfileScreen extends State<ProfileScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: true,
-      appBar: AppBar(
-        title: const Text("PROFILE", style: TextStyle(letterSpacing: 2.0, fontSize: 30, fontWeight: FontWeight.bold, color: Colors.white)),
-        centerTitle: false,
-        elevation: 20,
-        backgroundColor: const Color.fromARGB(255, 37, 57, 170),
+      appBar: AppStyles.buildAppBar(
+        title: "PROFILE",
+        context: context,
+        showBackButton: true,
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(30),
@@ -870,19 +909,9 @@ class _FortuneScreen extends State<FortuneScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          "Fortune",
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            letterSpacing: 1.2,
-            fontSize: 24,
-            color: Colors.white,
-          ),
-        ),
-        centerTitle: true,
-        backgroundColor: Colors.deepPurple,
-        elevation: 5,
+      appBar: AppStyles.buildAppBar(
+        title: "Fortune",
+        context: context,
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -1030,10 +1059,10 @@ class _SearchScreenState extends State<SearchScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Search"),
-        backgroundColor: const Color(0xFF1C2641),
-        centerTitle: true,
+      appBar: AppStyles.buildAppBar(
+        title: "Search",
+        context: context,
+        showBackButton: true,
       ),
       body: Column(
         children: [
@@ -1057,7 +1086,7 @@ class _SearchScreenState extends State<SearchScreen> {
               itemBuilder: (context, index) {
                 final item = results[index];
                 final bool isFavorite = item["isFavorite"] ?? false;
-                final bool inCart = item["inCart"] ?? false;
+                final bool inCart = CartService().cartItems.any((cartItem) => cartItem["name"] == item["name"]);
 
                 return Container(
                   margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -1070,7 +1099,13 @@ class _SearchScreenState extends State<SearchScreen> {
                     children: [
                       Expanded(
                         flex: 3,
-                        child: Text(item["name"], style: const TextStyle(fontSize: 16)),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(item["name"], style: const TextStyle(fontSize: 16)),
+                            Text("${item["price"]}₺", style: const TextStyle(fontSize: 14, color: Colors.grey)),
+                          ],
+                        ),
                       ),
                       IconButton(
                         icon: Icon(
@@ -1090,7 +1125,23 @@ class _SearchScreenState extends State<SearchScreen> {
                         ),
                         onPressed: () {
                           setState(() {
-                            item["inCart"] = !inCart;
+                            if (inCart) {
+                              CartService().removeFromCart(item["name"]);
+                            } else {
+                              CartService().addToCart(item);
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text("${item["name"]} added to cart"),
+                                  duration: const Duration(seconds: 2),
+                                  action: SnackBarAction(
+                                    label: 'View Cart',
+                                    onPressed: () {
+                                      Navigator.pushNamed(context, '/Sepet');
+                                    },
+                                  ),
+                                ),
+                              );
+                            }
                           });
                         },
                       ),
@@ -1132,20 +1183,9 @@ class RestaurantScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: const Color(0xFF1C2641),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: const Text(
-          'Restaurants',
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-          ),
-        ),
-        centerTitle: true,
+      appBar: AppStyles.buildAppBar(
+        title: "Restaurants",
+        context: context,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -1157,11 +1197,11 @@ class RestaurantScreen extends StatelessWidget {
             buildRestaurantCard(
               context,
               'assets/kucukev.jpg',
-              '/Menu', // yönlendirilecek route
+              '/Menu',
             ),
             buildRestaurantCard(
               context,
-              'assets/pizzabulls.jpg',
+              'https://scontent.fsaw1-14.fna.fbcdn.net/v/t39.30808-6/348269659_1862302194151632_6051998388861171833_n.png?_nc_cat=109&ccb=1-7&_nc_sid=6ee11a&_nc_ohc=A1AXjzfWY9EQ7kNvwF1nfA8&_nc_oc=Adna80dRsrq-fTyGhgVU58jFEaZXMDRE5iHTeVfBIUlJEN41DsQllmuqLbavLuCckq4&_nc_zt=23&_nc_ht=scontent.fsaw1-14.fna&_nc_gid=QegW7_dRgahPIqHu9A7-RQ&oh=00_AfFhkuozUvUxBvBty3wpcR9sFQShgAoP-O-DwWnU6wAJ3w&oe=6809CB65',
               '/Menu',
             ),
             buildRestaurantCard(
@@ -1204,12 +1244,19 @@ class RestaurantScreen extends StatelessWidget {
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(16),
-        child: Image.asset(
-          imagePath,
-          fit: BoxFit.cover,
-          height: double.infinity,
-          width: double.infinity,
-        ),
+        child: imagePath.startsWith('http')
+            ? Image.network(
+                imagePath,
+                fit: BoxFit.cover,
+                height: double.infinity,
+                width: double.infinity,
+              )
+            : Image.asset(
+                imagePath,
+                fit: BoxFit.cover,
+                height: double.infinity,
+                width: double.infinity,
+              ),
       ),
     );
   }
@@ -1265,17 +1312,9 @@ class _MenuScreenState extends State<MenuScreen> {
     return SafeArea(
       child: Scaffold(
         backgroundColor: Colors.white,
-        appBar: AppBar(
-          title: const Text(
-            "Menu",
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: Colors.white),
-          ),
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back, color: Colors.white),
-            onPressed: () => Navigator.pop(context),
-          ),
-          centerTitle: true,
-          backgroundColor: const Color(0xFF1C2641),
+        appBar: AppStyles.buildAppBar(
+          title: "Menu",
+          context: context,
         ),
         body: Column(
           children: [
@@ -1458,20 +1497,9 @@ class _SepetScreenState extends State<SepetScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: const Color(0xFF1C2641),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: const Text(
-          'Your Cart',
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        centerTitle: true,
+      appBar: AppStyles.buildAppBar(
+        title: "Your Cart",
+        context: context,
       ),
       body: Column(
         children: [
@@ -1684,20 +1712,9 @@ class _DeliveryInfoScreen extends State<DeliveryInfoScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: const Color(0xFF1C2641),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: const Text(
-          'Delivery Information',
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        centerTitle: true,
+      appBar: AppStyles.buildAppBar(
+        title: "Delivery Information",
+        context: context,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -1856,20 +1873,9 @@ class _OrderStatusScreen extends State<OrderStatusScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: const Color(0xFF1C2641),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: const Text(
-          'ORDER STATUS',
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        centerTitle: true,
+      appBar: AppStyles.buildAppBar(
+        title: "ORDER STATUS",
+        context: context,
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -2097,20 +2103,9 @@ class _ReviewScreen extends State<ReviewScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: const Color(0xFF1C2641),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: const Text(
-          'REVIEW YOUR DELIVERY',
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        centerTitle: true,
+      appBar: AppStyles.buildAppBar(
+        title: "REVIEW YOUR DELIVERY",
+        context: context,
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
