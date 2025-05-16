@@ -1,5 +1,9 @@
 # Project-level configuration.
 cmake_minimum_required(VERSION 3.14)
+
+# Disable warnings as errors globally
+add_definitions(-D_CRT_SECURE_NO_WARNINGS)
+
 project(projephase2 LANGUAGES CXX)
 
 # The name of the executable created for the application. Change this to change
@@ -101,6 +105,9 @@ install(CODE "
   " COMPONENT Runtime)
 install(DIRECTORY "${PROJECT_BUILD_DIR}/${FLUTTER_ASSET_DIR_NAME}"
   DESTINATION "${INSTALL_BUNDLE_DATA_DIR}" COMPONENT Runtime)
+
+# Add this line to disable warnings as errors
+add_definitions(-D_CRT_SECURE_NO_WARNINGS)
 
 # Install the AOT library on non-Debug builds only.
 install(FILES "${AOT_LIBRARY}" DESTINATION "${INSTALL_BUNDLE_DATA_DIR}"

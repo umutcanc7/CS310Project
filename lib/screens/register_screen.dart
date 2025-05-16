@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:email_validator/email_validator.dart';
 import 'dart:io' show Platform;
-import 'package:flutter/cupertino.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../app_styles.dart';
+import 'package:projephase2/services/auth_service.dart';
+import 'package:projephase2/services/database_service.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -20,228 +22,233 @@ class _RegisterScreen extends State<RegisterScreen> {
   String confirmPassword = '';
   bool showPassword = false;
   bool showConfirmPassword = false;
+  String confirmPasswordError = '';
 
-  Future<void> _showDialog(String title, String message) async {
-    bool isAndroid = Platform.isAndroid;
+  final AuthService authService = AuthService();
+  final DatabaseService databaseService = DatabaseService();
 
-    return showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          if (isAndroid) {
-            return AlertDialog(
-              title: Text(title),
-              content: Text(message),
-              actions: [
-                TextButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                    child: Text('OK'))
-              ],
-            );
-          } else {
-            return CupertinoAlertDialog(
-              title: Text(title),
-              content: Text(message),
-              actions: [
-                TextButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                    child: Text('OK'))
-              ],
-            );
-          }
-        });
+  Future<void> _showSnackbar(String message) async {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          message,
+          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+        ),
+        backgroundColor: Colors.redAccent,
+        behavior: SnackBarBehavior.floating,
+        duration: const Duration(seconds: 4),
+        margin: const EdgeInsets.all(20),
+      ),
+    );
+  }
+
+  Future<void> _registerUser() async {
+    final isValid = _formKey.currentState!.validate();
+
+    if (!isValid) {
+      return;
+    }
+
+    _formKey.currentState!.save();
+
+    setState(() {
+      confirmPasswordError = '';
+    });
+
+    if (password != confirmPassword) {
+      setState(() {
+        confirmPasswordError = 'Passwords do not match';
+      });
+      return;
+    }
+
+    try {
+      var user = await authService.registerWithEmail(email, password);
+
+      if (user != null) {
+        String userId = user.uid;
+        await databaseService.addUser(userId, name, surname, email);
+        _showSnackbar('Registration successful!');
+        Navigator.pushNamed(context, '/Login');
+      }
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'email-already-in-use') {
+        _showSnackbar('This email is already registered. Please use a different email.');
+      } else {
+        _showSnackbar(e.message ?? 'An error occurred.');
+      }
+    } catch (e) {
+      _showSnackbar(e.toString());
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 60),
-        child: SingleChildScrollView(
-          child: Form(
-            key: _formKey,
-            child: Column(
-              children: [
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                  decoration: BoxDecoration(
-                    color: Colors.indigo[900],
-                    borderRadius: BorderRadius.circular(25),
-                  ),
-                  child: const Text(
-                    "SABANCI SEPETİ",
-                    style: TextStyle(
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 60),
+          child: SingleChildScrollView(
+            child: Form(
+              key: _formKey,
+              autovalidateMode: AutovalidateMode.disabled,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                    decoration: BoxDecoration(
+                      color: Colors.indigo[900],
+                      borderRadius: BorderRadius.circular(25),
+                    ),
+                    child: const Text(
+                      "SABANCI SEPETİ",
+                      style: TextStyle(
                         color: Colors.white,
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
-                        letterSpacing: 1),
+                        letterSpacing: 1,
+                      ),
+                    ),
                   ),
-                ),
-                const SizedBox(height: 20),
-                Image.asset('assets/sepet.jpg', height: 150),
-                const SizedBox(height: 30),
-                TextFormField(
-                  decoration: InputDecoration(
-                    hintText: "Please enter your name",
-                    filled: true,
-                    fillColor: Color.fromARGB(255, 240, 240, 240),
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(30)),
-                  ),
-                  validator: (value) {
-                    if (value != null) {
-                      if (value.isEmpty) {
-                        return 'Cannot leave name empty';
+                  const SizedBox(height: 20),
+                  Image.asset('assets/sepet.jpg', height: 150),
+                  const SizedBox(height: 30),
+
+                  // Name Field
+                  TextFormField(
+                    decoration: InputDecoration(
+                      hintText: "Enter your name",
+                      filled: true,
+                      fillColor: const Color.fromARGB(255, 240, 240, 240),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(30)),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Name is required';
                       }
-                    }
-                    return null;
-                  },
-                  onSaved: (value) => name = value ?? '',
-                ),
-                const SizedBox(height: 10),
-                TextFormField(
-                  decoration: InputDecoration(
-                    hintText: "Please enter your surname",
-                    filled: true,
-                    fillColor: Color.fromARGB(255, 240, 240, 240),
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(30)),
+                      return null;
+                    },
+                    onSaved: (value) => name = value!,
                   ),
-                  validator: (value) =>
-                      value == null || value.isEmpty ? 'Surname is required' : null,
-                  onSaved: (value) => surname = value ?? '',
-                ),
-                const SizedBox(height: 10),
-                TextFormField(
-                  keyboardType: TextInputType.emailAddress,
-                  decoration: InputDecoration(
-                    prefixIcon: Icon(Icons.email),
-                    hintText: "Please enter your E-mail address",
-                    filled: true,
-                    fillColor: Color.fromARGB(255, 240, 240, 240),
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(30)),
+                  const SizedBox(height: 10),
+
+                  // Surname Field
+                  TextFormField(
+                    decoration: InputDecoration(
+                      hintText: "Enter your surname",
+                      filled: true,
+                      fillColor: const Color.fromARGB(255, 240, 240, 240),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(30)),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Surname is required';
+                      }
+                      return null;
+                    },
+                    onSaved: (value) => surname = value!,
                   ),
-                  validator: (value) {
-                    if (value != null) {
-                      if (value.isEmpty) {
+                  const SizedBox(height: 10),
+
+                  // Email Field
+                  TextFormField(
+                    keyboardType: TextInputType.emailAddress,
+                    decoration: InputDecoration(
+                      prefixIcon: const Icon(Icons.email),
+                      hintText: "Enter your email",
+                      filled: true,
+                      fillColor: const Color.fromARGB(255, 240, 240, 240),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(30)),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
                         return 'Email is required';
                       }
                       if (!EmailValidator.validate(value)) {
                         return 'Invalid email';
                       }
-                    }
-                    return null;
-                  },
-                  onSaved: (value) => email = value ?? '',
-                ),
-                const SizedBox(height: 10),
-                TextFormField(
-                  obscureText: !showPassword,
-                  decoration: InputDecoration(
-                    prefixIcon: Icon(Icons.lock),
-                    suffixIcon: IconButton(
-                      icon: Icon(showPassword
-                          ? Icons.visibility
-                          : Icons.visibility_off),
-                      onPressed: () {
-                        setState(() => showPassword = !showPassword);
-                      },
-                    ),
-                    hintText: "Please enter your password",
-                    filled: true,
-                    fillColor: Color.fromARGB(255, 240, 240, 240),
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(30)),
+                      return null;
+                    },
+                    onSaved: (value) => email = value!,
                   ),
-                  validator: (value) {
-                    if (value != null) {
-                      if (value.isEmpty) {
-                        return 'Cannot leave password empty';
+                  const SizedBox(height: 10),
+
+                  // Password Field
+                  TextFormField(
+                    obscureText: !showPassword,
+                    decoration: InputDecoration(
+                      prefixIcon: const Icon(Icons.lock),
+                      suffixIcon: IconButton(
+                        icon: Icon(showPassword ? Icons.visibility : Icons.visibility_off),
+                        onPressed: () {
+                          setState(() => showPassword = !showPassword);
+                        },
+                      ),
+                      hintText: "Enter your password",
+                      filled: true,
+                      fillColor: const Color.fromARGB(255, 240, 240, 240),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(30)),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Password is required';
                       }
                       if (value.length < 6) {
-                        return 'Too short';
+                        return 'Password must be at least 6 characters';
                       }
-                    }
-                    return null;
-                  },
-                  onSaved: (value) => password = value ?? '',
-                ),
-                const SizedBox(height: 10),
-                TextFormField(
-                  obscureText: !showConfirmPassword,
-                  decoration: InputDecoration(
-                    prefixIcon: Icon(Icons.lock),
-                    suffixIcon: IconButton(
-                      icon: Icon(showConfirmPassword
-                          ? Icons.visibility
-                          : Icons.visibility_off),
-                      onPressed: () {
-                        setState(() => showConfirmPassword = !showConfirmPassword);
-                      },
-                    ),
-                    hintText: "Please re-enter your password",
-                    filled: true,
-                    fillColor: Color.fromARGB(255, 240, 240, 240),
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(30)),
-                  ),
-                  validator: (value) {
-                    if (value != null) {
-                      if (value.isEmpty) {
-                        return 'Confirmation required';
-                      }
-                    }
-                    return null;
-                  },
-                  onSaved: (value) => confirmPassword = value ?? '',
-                ),
-                const SizedBox(height: 20),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: TextButton(
-                    onPressed: () {
-                      Navigator.pushNamed(context, '/Login');
+                      return null;
                     },
-                    child: const Text(
-                      "Already have an account?",
-                      style: TextStyle(
-                          fontWeight: FontWeight.bold, color: Colors.black),
-                    ),
+                    onSaved: (value) => password = value!,
                   ),
-                ),
-                const SizedBox(height: 20),
-                ElevatedButton(
-                  onPressed: () {
-                    if (_formKey.currentState!.validate()) {
-                      _formKey.currentState!.save();
+                  const SizedBox(height: 10),
 
-                      if (password != confirmPassword) {
-                        _showDialog(
-                            'Password Mismatch', 'Passwords do not match');
-                        return;
-                      }
+                  // Confirm Password Field
+                  TextFormField(
+                    obscureText: !showConfirmPassword,
+                    decoration: InputDecoration(
+                      prefixIcon: const Icon(Icons.lock),
+                      suffixIcon: IconButton(
+                        icon: Icon(showConfirmPassword ? Icons.visibility : Icons.visibility_off),
+                        onPressed: () {
+                          setState(() => showConfirmPassword = !showConfirmPassword);
+                        },
+                      ),
+                      hintText: "Confirm your password",
+                      filled: true,
+                      fillColor: const Color.fromARGB(255, 240, 240, 240),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(30)),
+                    ),
+                    onSaved: (value) => confirmPassword = value!,
+                  ),
+                  
+                  // Password Match Error
+                  if (confirmPasswordError.isNotEmpty)
+                    Container(
+                      alignment: Alignment.centerLeft,
+                      padding: const EdgeInsets.only(top: 5, left: 12),
+                      child: Text(
+                        confirmPasswordError,
+                        style: const TextStyle(color: Colors.redAccent, fontSize: 12),
+                      ),
+                    ),
 
-                      Navigator.pushNamed(context, '/Home');
-                      print(
-                          'Name: $name, Surname: $surname, Email: $email, Password: $password');
-                    } else {
-                      _showDialog('Form Error', 'Your form is invalid');
-                    }
-                  },
-                  style: ElevatedButton.styleFrom(
+                  const SizedBox(height: 20),
+
+                  // Register Button
+                  ElevatedButton(
+                    onPressed: _registerUser,
+                    style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.indigo,
                       foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 50, vertical: 15)),
-                  child: const Text("REGISTER"),
-                )
-              ],
+                      padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+                    ),
+                    child: const Text("REGISTER"),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
