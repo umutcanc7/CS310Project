@@ -63,11 +63,9 @@ class _RegisterScreen extends State<RegisterScreen> {
     }
 
     try {
-      var user = await authService.registerWithEmail(email, password);
+      var user = await authService.registerWithEmail(name, surname, email, password);
 
       if (user != null) {
-        String userId = user.uid;
-        await databaseService.addUser(userId, name, surname, email);
         _showSnackbar('Registration successful!');
         Navigator.pushNamed(context, '/Login');
       }
