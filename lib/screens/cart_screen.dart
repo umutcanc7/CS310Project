@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../navigation_bar.dart';
 import '../app_styles.dart';
 import '../cart_service.dart';
+import '../services/product_service.dart';
 
 class CartScreen extends StatefulWidget {
   const CartScreen({super.key});
@@ -77,8 +78,50 @@ class _CartScreenState extends State<CartScreen> {
                                 ),
                               ),
                             ),
+                            Row(
+                              children: [
+                                IconButton(
+                                  icon: const Icon(Icons.remove_circle_outline),
+                                  onPressed: () {
+                                    setState(() {
+                                      CartService().decreaseQuantity(item["name"]);
+                                    });
+                                  },
+                                ),
+                                Text(
+                                  '${item["quantity"] ?? 1}',
+                                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                                ),
+                                IconButton(
+                                  icon: const Icon(Icons.add_circle_outline),
+                                  onPressed: () async {
+                                    // Check stock before increasing
+                                    final productService = ProductService();
+                                    final products = await productService.fetchProducts();
+                                    final dbProduct = products.firstWhere(
+                                      (p) => p["name"] == item["name"],
+                                      orElse: () => <String, dynamic>{},
+                                    );
+                                    final stock = dbProduct["stock"] ?? 0;
+                                    final currentQty = item["quantity"] ?? 1;
+                                    if (currentQty < stock) {
+                                      setState(() {
+                                        CartService().increaseQuantity(item["name"]);
+                                      });
+                                    } else {
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        const SnackBar(
+                                          content: Text("Not enough stock available!"),
+                                          duration: Duration(seconds: 2),
+                                        ),
+                                      );
+                                    }
+                                  },
+                                ),
+                              ],
+                            ),
                             Text(
-                              '${item["price"]}₺',
+                              '${(item["price"] * (item["quantity"] ?? 1)).toStringAsFixed(1)}₺',
                               style: const TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,

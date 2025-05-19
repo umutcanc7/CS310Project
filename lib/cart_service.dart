@@ -7,7 +7,7 @@ class CartService {
   
   List<Map<String, dynamic>> get cartItems => _cartItems;
   
-  double get totalAmount => _cartItems.fold(0, (sum, item) => sum + (item["price"] as num));
+  double get totalAmount => _cartItems.fold(0, (sum, item) => sum + (item["price"] as num) * (item["quantity"] ?? 1));
 
   void addToCart(Map<String, dynamic> item) {
     // Check if item already exists
@@ -25,5 +25,24 @@ class CartService {
 
   void clearCart() {
     _cartItems.clear();
+  }
+
+  void increaseQuantity(String itemName) {
+    final index = _cartItems.indexWhere((element) => element["name"] == itemName);
+    if (index != -1) {
+      _cartItems[index]["quantity"] = (_cartItems[index]["quantity"] ?? 1) + 1;
+    }
+  }
+
+  void decreaseQuantity(String itemName) {
+    final index = _cartItems.indexWhere((element) => element["name"] == itemName);
+    if (index != -1) {
+      final currentQty = _cartItems[index]["quantity"] ?? 1;
+      if (currentQty > 1) {
+        _cartItems[index]["quantity"] = currentQty - 1;
+      } else {
+        _cartItems.removeAt(index);
+      }
+    }
   }
 }

@@ -50,7 +50,7 @@ class _ProfileScreen extends State<ProfileScreen> {
       mobilePhone = data['phone']!;
     });
 
-    // keep provider’s copy fresh
+    // keep provider's copy fresh
     context.read<app_auth.AuthProvider>().updateUserData('name', name);
     context.read<app_auth.AuthProvider>().updateUserData('surname', surname);
     context.read<app_auth.AuthProvider>().updateUserData('phone', mobilePhone);
@@ -88,57 +88,65 @@ class _ProfileScreen extends State<ProfileScreen> {
             Row(
               children: [
                 const Padding(
-                  padding: EdgeInsets.only(right: 25),
+                  padding: EdgeInsets.only(right: 16),
                   child: CircleAvatar(
-                    radius: 50,
-                    child: Icon(Icons.person, size: 40, color: Colors.blueAccent),
+                    radius: 32,
+                    child: Icon(Icons.person, size: 28, color: Colors.blueAccent),
                   ),
                 ),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    /* email (read-only) */
-                    Row(children: [
-                      const Text("Email: ", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                      Text(email, style: const TextStyle(color: Colors.black87, fontSize: 16, fontStyle: FontStyle.italic)),
-                    ]),
-                    const SizedBox(height: 4),
+                Flexible(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      /* email (read-only) */
+                      Row(children: [
+                        const Text("Email: ", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                        Expanded(
+                          child: Text(
+                            email,
+                            style: const TextStyle(color: Colors.black87, fontSize: 16, fontStyle: FontStyle.italic),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ]),
+                      const SizedBox(height: 4),
 
-                    /* editable rows */
-                    _editableRow(
-                      label: "Name: ",
-                      isEditing: isEditingName,
-                      controller: _nameController..text = name,
-                      display: name,
-                      onEditTap: () => setState(() => isEditingName = true),
-                      onSubmit: (v) {
-                        _update(newName: v);
-                        setState(() { name = v; isEditingName = false; });
-                      },
-                    ),
-                    _editableRow(
-                      label: "Surname: ",
-                      isEditing: isEditingSurname,
-                      controller: _surnameController..text = surname,
-                      display: surname,
-                      onEditTap: () => setState(() => isEditingSurname = true),
-                      onSubmit: (v) {
-                        _update(newSurname: v);
-                        setState(() { surname = v; isEditingSurname = false; });
-                      },
-                    ),
-                    _editableRow(
-                      label: "Phone number: ",
-                      isEditing: isEditingPhone,
-                      controller: _phoneController..text = mobilePhone,
-                      display: mobilePhone,
-                      onEditTap: () => setState(() => isEditingPhone = true),
-                      onSubmit: (v) {
-                        _update(newPhone: v);
-                        setState(() { mobilePhone = v; isEditingPhone = false; });
-                      },
-                    ),
-                  ],
+                      /* editable rows */
+                      _editableRow(
+                        label: "Name: ",
+                        isEditing: isEditingName,
+                        controller: _nameController..text = name,
+                        display: name,
+                        onEditTap: () => setState(() => isEditingName = true),
+                        onSubmit: (v) {
+                          _update(newName: v);
+                          setState(() { name = v; isEditingName = false; });
+                        },
+                      ),
+                      _editableRow(
+                        label: "Surname: ",
+                        isEditing: isEditingSurname,
+                        controller: _surnameController..text = surname,
+                        display: surname,
+                        onEditTap: () => setState(() => isEditingSurname = true),
+                        onSubmit: (v) {
+                          _update(newSurname: v);
+                          setState(() { surname = v; isEditingSurname = false; });
+                        },
+                      ),
+                      _editableRow(
+                        label: "Phone: ",
+                        isEditing: isEditingPhone,
+                        controller: _phoneController..text = mobilePhone,
+                        display: mobilePhone,
+                        onEditTap: () => setState(() => isEditingPhone = true),
+                        onSubmit: (v) {
+                          _update(newPhone: v);
+                          setState(() { mobilePhone = v; isEditingPhone = false; });
+                        },
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),
@@ -283,7 +291,13 @@ class _ProfileScreen extends State<ProfileScreen> {
                   ),
                 ),
               )
-            : Text(display, style: textStyle),
+            : Expanded(
+                child: Text(
+                  display,
+                  style: textStyle,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
         const SizedBox(width: 5),
         IconButton(
           icon: Icon(Icons.edit, size: 18, color: Colors.grey[600]),
