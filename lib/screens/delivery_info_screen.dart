@@ -101,9 +101,24 @@ class _DeliveryInfoScreen extends State<DeliveryInfoScreen> {
               child: ElevatedButton(
                 onPressed: () {
                   // Save delivery information and proceed
-                  if (_phoneController.text.isNotEmpty) {
-                    Navigator.pushNamed(context, '/OrderStatus');
+                  if (_phoneController.text.isEmpty) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Please enter internal phone number.'),
+                        duration: Duration(seconds: 2),
+                      ),
+                    );
+                    return;
                   }
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Your order is now being prepared.'),
+                      duration: Duration(seconds: 2),
+                    ),
+                  );
+                  Future.delayed(const Duration(milliseconds: 500), () {
+                    Navigator.pushNamed(context, '/OrderStatus');
+                  });
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF1C2641),

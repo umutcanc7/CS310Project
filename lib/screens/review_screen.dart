@@ -97,7 +97,15 @@ class _ReviewScreen extends State<ReviewScreen> {
             ElevatedButton(
               onPressed: () {
                 // Handle submit review
-                Navigator.pushNamed(context, '/Home');
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Review successfully received.'),
+                    duration: Duration(seconds: 2),
+                  ),
+                );
+                Future.delayed(const Duration(milliseconds: 500), () {
+                  Navigator.pushNamed(context, '/Home');
+                });
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF1C2641),

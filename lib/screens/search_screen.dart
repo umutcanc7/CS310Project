@@ -3,6 +3,7 @@ import '../navigation_bar.dart';
 import '../app_styles.dart';
 import '../cart_service.dart';
 import '../services/product_service.dart';
+import '../services/favourites_service.dart';
 
 class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});
@@ -79,67 +80,99 @@ class _SearchScreenState extends State<SearchScreen> {
                     itemBuilder: (context, index) {
                       final item = results[index];
                       final bool inCart = CartService().cartItems.any((cartItem) => cartItem["name"] == item["name"]);
-                      return Container(
-                        margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: Colors.purple.shade50,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              flex: 3,
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(item["name"], style: const TextStyle(fontSize: 16)),
-                                  Text("${item["price"]}₺", style: const TextStyle(fontSize: 14, color: Colors.grey)),
-                                ],
-                              ),
+                      return FutureBuilder<bool>(
+                        future: FavouritesService().isFavourite(item["name"], item["category"]?.toString().toLowerCase().trim() ?? ''),
+                        builder: (context, snapshot) {
+                          final isFavourite = snapshot.data ?? false;
+                          return Container(
+                            margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: Colors.purple.shade50,
+                              borderRadius: BorderRadius.circular(8),
                             ),
-                            IconButton(
-                              icon: Icon(
-                                inCart ? Icons.shopping_cart : Icons.shopping_cart_outlined,
-                                color: Colors.black,
-                              ),
-                              onPressed: () async {
-                                if (inCart) {
-                                  setState(() {
-                                    CartService().removeFromCart(item["name"]);
-                                  });
-                                } else {
-                                  // Check stock before adding
-                                  final productService = ProductService();
-                                  final products = await productService.fetchProducts();
-                                  final dbProduct = products.firstWhere(
-                                    (p) => p["name"] == item["name"],
-                                    orElse: () => <String, dynamic>{},
-                                  );
-                                  final stock = dbProduct["stock"] ?? 0;
-                                  if (stock > 0) {
-                                    setState(() {
-                                      CartService().addToCart(item);
-                                    });
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                        content: Text("Added to your cart!"),
-                                        duration: Duration(seconds: 2),
-                                      ),
-                                    );
-                                  } else {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                        content: Text("This product is out of stock!"),
-                                        duration: Duration(seconds: 2),
-                                      ),
-                                    );
-                                  }
-                                }
-                              },
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  flex: 3,
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(item["name"], style: const TextStyle(fontSize: 16)),
+                                      Text("${item["price"]}₺", style: const TextStyle(fontSize: 14, color: Colors.grey)),
+                                    ],
+                                  ),
+                                ),
+                                IconButton(
+                                  icon: Icon(
+                                    isFavourite ? Icons.star : Icons.star_border,
+                                    color: isFavourite ? Colors.amber : Colors.grey,
+                                  ),
+                                  onPressed: () async {
+                                    final category = item["category"]?.toString().toLowerCase().trim() ?? '';
+                                    if (isFavourite) {
+                                      final favs = await FavouritesService().fetchFavourites();
+                                      final fav = favs.firstWhere(
+                                        (f) => f['name'] == item['name'] && f['category'] == category,
+                                        orElse: () => {},
+                                      );
+                                      if (fav['docId'] != null) {
+                                        await FavouritesService().removeFavourite(fav['docId']);
+                                        setState(() {});
+                                      }
+                                    } else {
+                                      await FavouritesService().addFavourite(
+                                        name: item['name'],
+                                        category: category,
+                                      );
+                                      setState(() {});
+                                    }
+                                  },
+                                ),
+                                IconButton(
+                                  icon: Icon(
+                                    inCart ? Icons.shopping_cart : Icons.shopping_cart_outlined,
+                                    color: Colors.black,
+                                  ),
+                                  onPressed: () async {
+                                    if (inCart) {
+                                      setState(() {
+                                        CartService().removeFromCart(item["name"]);
+                                      });
+                                    } else {
+                                      // Check stock before adding
+                                      final productService = ProductService();
+                                      final products = await productService.fetchProducts();
+                                      final dbProduct = products.firstWhere(
+                                        (p) => p["name"] == item["name"],
+                                        orElse: () => <String, dynamic>{},
+                                      );
+                                      final stock = dbProduct["stock"] ?? 0;
+                                      if (stock > 0) {
+                                        setState(() {
+                                          CartService().addToCart(item);
+                                        });
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          const SnackBar(
+                                            content: Text("Added to your cart!"),
+                                            duration: Duration(seconds: 2),
+                                          ),
+                                        );
+                                      } else {
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          const SnackBar(
+                                            content: Text("This product is out of stock!"),
+                                            duration: Duration(seconds: 2),
+                                          ),
+                                        );
+                                      }
+                                    }
+                                  },
+                                ),
+                              ],
                             ),
-                          ],
-                        ),
+                          );
+                        },
                       );
                     },
                   ),

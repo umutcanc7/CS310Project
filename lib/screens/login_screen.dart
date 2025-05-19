@@ -150,22 +150,6 @@ class _LoginScreen extends State<LoginScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Row(
-                        children: [
-                          const Text(
-                            "Remember me?",
-                            style: TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                          Checkbox(
-                            value: rememberMe,
-                            onChanged: (value) {
-                              setState(() {
-                                rememberMe = value!;
-                              });
-                            },
-                          ),
-                        ],
-                      ),
                       TextButton(
                         onPressed: () {},
                         child: const Text(

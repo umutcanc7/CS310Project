@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'selected_restaurant.dart';
 
 class CustomNavBar extends StatelessWidget {
   final int currentIndexx;
@@ -14,7 +15,30 @@ class CustomNavBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return BottomNavigationBar(
       currentIndex: currentIndexx,
-      onTap: onTap,
+      onTap: (index) {
+        if (index == 1) {
+          // Search tab
+          if (SelectedRestaurant.name == null) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Please pick a restaurant.'),
+                duration: Duration(seconds: 2),
+              ),
+            );
+          } else if (SelectedRestaurant.name != 'piazza') {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('This restaurant is not yet added to the app. Please pick a restaurant that is added.'),
+                duration: Duration(seconds: 2),
+              ),
+            );
+          } else {
+            onTap(index);
+          }
+        } else {
+          onTap(index);
+        }
+      },
       backgroundColor: const Color(0xFF1C2641), 
       type: BottomNavigationBarType.fixed, 
       selectedItemColor: Colors.white, 

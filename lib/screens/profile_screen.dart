@@ -7,6 +7,7 @@ import '../services/profile_backend.dart';
 import '../navigation_bar.dart';
 import '../app_styles.dart';
 import 'login_screen.dart';
+import '../selected_restaurant.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -222,6 +223,7 @@ class _ProfileScreen extends State<ProfileScreen> {
                   /* FULL LOG-OUT */
                   await FirebaseAuth.instance.signOut();
                   context.read<app_auth.AuthProvider>().clearUser();
+                  SelectedRestaurant.name = null;
                   if (!mounted) return;
                   Navigator.pushAndRemoveUntil(
                     context,

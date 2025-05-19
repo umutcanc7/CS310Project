@@ -8,11 +8,13 @@ class ProductService {
     required String name,
     required double price,
     required int stock,
+    required String category,
   }) async {
     await productsCollection.add({
       'name': name,
       'price': price,
       'stock': stock,
+      'category': category,
       'createdAt': FieldValue.serverTimestamp(),
     });
   }
@@ -34,6 +36,7 @@ class ProductService {
         'name': data['name'],
         'price': data['price'],
         'stock': data['stock'],
+        'category': data['category'] ?? 'foods',
       };
     }).toList();
   }

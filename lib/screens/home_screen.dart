@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../navigation_bar.dart';
+import 'favourites_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -120,7 +121,14 @@ class HomeScreen extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 10),
       child: ElevatedButton(
         onPressed: () {
-          Navigator.pushNamed(context, routeName);
+          if (label == 'FAVOURITES') {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const FavouritesScreen()),
+            );
+          } else {
+            Navigator.pushNamed(context, routeName);
+          }
         },
         style: ElevatedButton.styleFrom(
           minimumSize: const Size.fromHeight(60),

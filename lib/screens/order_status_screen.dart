@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../navigation_bar.dart';
 import '../app_styles.dart';
+import '../cart_service.dart';
 
 class OrderStatusScreen extends StatefulWidget {
   const OrderStatusScreen({super.key});
@@ -34,6 +35,7 @@ class _OrderStatusScreen extends State<OrderStatusScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final cartItems = CartService().cartItems;
     return Scaffold(
       appBar: AppStyles.buildAppBar(
         title: "ORDER STATUS",
@@ -42,6 +44,46 @@ class _OrderStatusScreen extends State<OrderStatusScreen> {
       body: SingleChildScrollView(
         child: Column(
           children: [
+            // Order Details Section
+            if (cartItems.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Your Order:',
+                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 8),
+                    ...cartItems.map((item) => Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 4),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                flex: 3,
+                                child: Text(item['name'] ?? '', style: const TextStyle(fontSize: 16)),
+                              ),
+                              Expanded(
+                                flex: 2,
+                                child: Text('${item['price']}₺', style: const TextStyle(fontSize: 16)),
+                              ),
+                              Expanded(
+                                flex: 2,
+                                child: Text(
+                                  (item['category'] != null && item['category'].isNotEmpty)
+                                      ? item['category'][0].toUpperCase() + item['category'].substring(1)
+                                      : '',
+                                  style: const TextStyle(fontSize: 16, color: Colors.grey),
+                                ),
+                              ),
+                            ],
+                          ),
+                        )),
+                    const Divider(height: 24, thickness: 1),
+                  ],
+                ),
+              ),
             // Delivery Person Info Card
             Container(
               width: double.infinity,
