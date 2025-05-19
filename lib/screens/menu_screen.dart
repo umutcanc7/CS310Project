@@ -95,14 +95,45 @@ class _MenuScreenState extends State<MenuScreen> {
                               inCart ? Icons.shopping_cart : Icons.shopping_cart_outlined,
                               color: Colors.black,
                             ),
-                            onPressed: () {
-                              setState(() {
-                                if (inCart) {
+                            onPressed: () async {
+                              if (inCart) {
+                                setState(() {
                                   CartService().removeFromCart(item["name"]);
+                                });
+                              } else {
+                                // Check stock before adding
+                                final productService = ProductService();
+                                final products = await productService.fetchProducts();
+                                final dbProduct = products.firstWhere(
+                                  (p) => p["name"] == item["name"],
+                                  orElse: () => <String, dynamic>{},
+                                );
+                                final stock = dbProduct["stock"] ?? 0;
+                                if (stock > 0) {
+                                  setState(() {
+                                    CartService().addToCart(item);
+                                  });
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: const Text("Added to your cart!"),
+                                      duration: const Duration(seconds: 2),
+                                      action: SnackBarAction(
+                                        label: 'Go to Cart',
+                                        onPressed: () {
+                                          Navigator.pushNamed(context, '/Sepet');
+                                        },
+                                      ),
+                                    ),
+                                  );
                                 } else {
-                                  CartService().addToCart(item);
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text("This product is out of stock!"),
+                                      duration: Duration(seconds: 2),
+                                    ),
+                                  );
                                 }
-                              });
+                              }
                             },
                           ),
                         ),

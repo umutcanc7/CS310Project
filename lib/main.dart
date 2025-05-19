@@ -16,6 +16,9 @@ import 'screens/review_screen.dart';
 import 'screens/search_screen.dart';
 import 'screens/fortune_screen.dart';
 import 'screens/profile_screen.dart';
+import 'screens/menu1.dart';
+import 'screens/menu2.dart';
+import 'screens/menu3.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -61,6 +64,9 @@ class MyApp extends StatelessWidget {
         "/Search": (context) => const SearchScreen(),
         "/Restaurant": (context) => const RestaurantScreen(),
         "/Menu": (context) => const MenuScreen(),
+        "/Menu1": (context) => const Menu1Screen(),
+        "/Menu2": (context) => const Menu2Screen(),
+        "/Menu3": (context) => const Menu3Screen(),
         "/Sepet": (context) => const CartScreen(),
         "/DeliveryInfo": (context) => const DeliveryInfoScreen(),
         "/OrderStatus": (context) => const OrderStatusScreen(),

@@ -71,7 +71,6 @@ class HomeScreen extends StatelessWidget {
                   children: [
                     buildNavigationButton(context, 'RESTAURANTS', '/Restaurant'),
                     buildNavigationButton(context, 'FAVOURITES', '/Favourites'),
-                    buildNavigationButton(context, 'ORDER STATUS', '/OrderStatus'),
                   ],
                 ),
               ),

@@ -22,17 +22,17 @@ class RestaurantScreen extends StatelessWidget {
             buildRestaurantCard(
               context,
               'assets/kucukev.jpg',
-              '/Menu',
+              '/Menu1',
             ),
             buildRestaurantCard(
               context,
               'https://scontent.fsaw1-14.fna.fbcdn.net/v/t39.30808-6/348269659_1862302194151632_6051998388861171833_n.png?_nc_cat=109&ccb=1-7&_nc_sid=6ee11a&_nc_ohc=A1AXjzfWY9EQ7kNvwF1nfA8&_nc_oc=Adna80dRsrq-fTyGhgVU58jFEaZXMDRE5iHTeVfBIUlJEN41DsQllmuqLbavLuCckq4&_nc_zt=23&_nc_ht=scontent.fsaw1-14.fna&_nc_gid=QegW7_dRgahPIqHu9A7-RQ&oh=00_AfFhkuozUvUxBvBty3wpcR9sFQShgAoP-O-DwWnU6wAJ3w&oe=6809CB65',
-              '/Menu',
+              '/Menu2',
             ),
             buildRestaurantCard(
               context,
               'assets/kopuklu.jpg',
-              '/Menu',
+              '/Menu3',
             ),
             buildRestaurantCard(
               context,

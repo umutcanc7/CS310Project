@@ -103,26 +103,39 @@ class _SearchScreenState extends State<SearchScreen> {
                                 inCart ? Icons.shopping_cart : Icons.shopping_cart_outlined,
                                 color: Colors.black,
                               ),
-                              onPressed: () {
-                                setState(() {
-                                  if (inCart) {
+                              onPressed: () async {
+                                if (inCart) {
+                                  setState(() {
                                     CartService().removeFromCart(item["name"]);
-                                  } else {
-                                    CartService().addToCart(item);
+                                  });
+                                } else {
+                                  // Check stock before adding
+                                  final productService = ProductService();
+                                  final products = await productService.fetchProducts();
+                                  final dbProduct = products.firstWhere(
+                                    (p) => p["name"] == item["name"],
+                                    orElse: () => <String, dynamic>{},
+                                  );
+                                  final stock = dbProduct["stock"] ?? 0;
+                                  if (stock > 0) {
+                                    setState(() {
+                                      CartService().addToCart(item);
+                                    });
                                     ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        content: Text("${item["name"]} added to cart"),
-                                        duration: const Duration(seconds: 2),
-                                        action: SnackBarAction(
-                                          label: 'View Cart',
-                                          onPressed: () {
-                                            Navigator.pushNamed(context, '/Sepet');
-                                          },
-                                        ),
+                                      const SnackBar(
+                                        content: Text("Added to your cart!"),
+                                        duration: Duration(seconds: 2),
+                                      ),
+                                    );
+                                  } else {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text("This product is out of stock!"),
+                                        duration: Duration(seconds: 2),
                                       ),
                                     );
                                   }
-                                });
+                                }
                               },
                             ),
                           ],

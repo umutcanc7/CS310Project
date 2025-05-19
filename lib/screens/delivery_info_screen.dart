@@ -113,7 +113,7 @@ class _DeliveryInfoScreen extends State<DeliveryInfoScreen> {
                   ),
                 ),
                 child: const Text(
-                  'Confirm Order',
+                  'Start preparation of your order',
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 18,

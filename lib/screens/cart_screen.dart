@@ -3,6 +3,8 @@ import '../navigation_bar.dart';
 import '../app_styles.dart';
 import '../cart_service.dart';
 import '../services/product_service.dart';
+import '../services/cart_database_service.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class CartScreen extends StatefulWidget {
   const CartScreen({super.key});
@@ -14,6 +16,17 @@ class CartScreen extends StatefulWidget {
 class _CartScreenState extends State<CartScreen> {
   final TextEditingController _noteController = TextEditingController();
   bool _noCutlery = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadCartFromFirestore();
+  }
+
+  Future<void> _loadCartFromFirestore() async {
+    await CartService().loadFromFirestore();
+    setState(() {});
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -209,7 +222,60 @@ class _CartScreenState extends State<CartScreen> {
             child: SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: cartItems.isEmpty ? null : () {
+                onPressed: cartItems.isEmpty ? null : () async {
+                  // Check stock for all products before confirming
+                  final productService = ProductService();
+                  final products = await productService.fetchProducts();
+                  bool allInStock = true;
+                  for (final item in cartItems) {
+                    final productId = item["id"] ?? "";
+                    final quantity = item["quantity"] ?? 1;
+                    if (productId != "") {
+                      final dbProduct = products.firstWhere(
+                        (p) => p["id"] == productId,
+                        orElse: () => <String, dynamic>{},
+                      );
+                      final currentStock = dbProduct["stock"] ?? 0;
+                      if (currentStock < quantity) {
+                        allInStock = false;
+                        break;
+                      }
+                    }
+                  }
+                  if (!allInStock) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text("Some products are out of stock or not enough stock available!"),
+                        duration: Duration(seconds: 2),
+                      ),
+                    );
+                    return;
+                  }
+                  // Lower stock for each product in the cart
+                  for (final item in cartItems) {
+                    final productId = item["id"] ?? "";
+                    final quantity = item["quantity"] ?? 1;
+                    if (productId != "") {
+                      final dbProduct = products.firstWhere(
+                        (p) => p["id"] == productId,
+                        orElse: () => <String, dynamic>{},
+                      );
+                      final currentStock = dbProduct["stock"] ?? 0;
+                      final newStock = (currentStock - quantity) < 0 ? 0 : (currentStock - quantity);
+                      await productService.updateStock(productId, newStock);
+                    }
+                  }
+                  // Clear cart in Firestore on checkout
+                  final userId = FirebaseAuth.instance.currentUser?.uid;
+                  if (userId != null) {
+                    await CartDatabaseService().clearCart(userId);
+                  }
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text("You successfully bought your order!"),
+                      duration: Duration(seconds: 2),
+                    ),
+                  );
                   Navigator.pushNamed(
                     context,
                     '/DeliveryInfo',
