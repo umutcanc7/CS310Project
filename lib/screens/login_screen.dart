@@ -151,7 +151,9 @@ class _LoginScreen extends State<LoginScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       TextButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          Navigator.pushNamed(context, '/ForgotPassword');
+                        },
                         child: const Text(
                           "Forgot your password?",
                           style: TextStyle(

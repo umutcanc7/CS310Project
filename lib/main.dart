@@ -19,6 +19,7 @@ import 'screens/profile_screen.dart';
 import 'screens/menu1.dart';
 import 'screens/menu2.dart';
 import 'screens/menu3.dart';
+import 'screens/forgot_password_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -71,6 +72,7 @@ class MyApp extends StatelessWidget {
         "/DeliveryInfo": (context) => const DeliveryInfoScreen(),
         "/OrderStatus": (context) => const OrderStatusScreen(),
         "/Review": (context) => const ReviewScreen(),
+        "/ForgotPassword": (context) => const ForgotPasswordScreen(),
       },
     );
   }
